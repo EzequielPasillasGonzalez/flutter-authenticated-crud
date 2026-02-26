@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
-
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     final size = MediaQuery.of(context).size;
     final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final textStyles = Theme.of(context).textTheme;
@@ -16,45 +14,54 @@ class RegisterScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        body: GeometricalBackground( 
+        body: GeometricalBackground(
           child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox( height: 80 ),
+                SizedBox(height: size.height * 0.06),
                 // Icon Banner
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IconButton(
-                      onPressed: (){
-                        if ( !context.canPop() ) return;
+                      onPressed: () {
+                        if (!context.canPop()) return;
                         context.pop();
-                      }, 
-                      icon: const Icon( Icons.arrow_back_rounded, size: 40, color: Colors.white )
+                      },
+                      icon: const Icon(
+                        Icons.arrow_back_rounded,
+                        size: 40,
+                        color: Colors.white,
+                      ),
                     ),
                     const Spacer(flex: 1),
-                    Text('Crear cuenta', style: textStyles.titleLarge?.copyWith(color: Colors.white )),
+                    Text(
+                      'Crear cuenta',
+                      style: textStyles.titleLarge?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
                     const Spacer(flex: 2),
                   ],
                 ),
 
-                const SizedBox( height: 50 ),
-    
                 Container(
-                  height: size.height - 260, // 80 los dos sizebox y 100 el ícono
+                  height: size.height,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: scaffoldBackgroundColor,
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(100)),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(100),
+                    ),
                   ),
                   child: const _RegisterForm(),
-                )
+                ),
               ],
             ),
-          )
-        )
+          ),
+        ),
       ),
     );
   }
@@ -65,75 +72,61 @@ class _RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final textStyles = Theme.of(context).textTheme;
+
+    final height = MediaQuery.of(context).size.height;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 30,
         children: [
-          const SizedBox( height: 50 ),
-          Text('Nueva cuenta', style: textStyles.titleMedium ),
-          const SizedBox( height: 50 ),
+          Text('Nueva cuenta', style: textStyles.titleMedium),
 
           const CustomTextFormField(
             label: 'Nombre completo',
             keyboardType: TextInputType.emailAddress,
           ),
-          const SizedBox( height: 30 ),
 
           const CustomTextFormField(
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
           ),
-          const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
-            label: 'Contraseña',
-            obscureText: true,
-          ),
-    
-          const SizedBox( height: 30 ),
+          const CustomTextFormField(label: 'Contraseña', obscureText: true),
 
           const CustomTextFormField(
             label: 'Repita la contraseña',
             obscureText: true,
           ),
-    
-          const SizedBox( height: 30 ),
 
           SizedBox(
             width: double.infinity,
-            height: 60,
+            height: height * 0.06,
             child: CustomFilledButton(
               text: 'Crear',
               buttonColor: Colors.black,
-              onPressed: (){
-
-              },
-            )
+              onPressed: () {},
+            ),
           ),
-
-          const Spacer( flex: 2 ),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text('¿Ya tienes cuenta?'),
               TextButton(
-                onPressed: (){
-                  if ( context.canPop()){
+                onPressed: () {
+                  if (context.canPop()) {
                     return context.pop();
                   }
                   context.go('/login');
-                  
-                }, 
-                child: const Text('Ingresa aquí')
-              )
+                },
+                child: const Text('Ingresa aquí'),
+              ),
             ],
           ),
-
-          const Spacer( flex: 1),
         ],
       ),
     );
