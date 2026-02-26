@@ -93,16 +93,18 @@ class _LoginForm extends StatelessWidget {
 
           const SizedBox(height: 30),
 
-          SizedBox(
-            width: double.infinity,
-            height: 60,
-            child: CustomFilledButton(
-              text: 'Ingresar',
-              buttonColor: Colors.black,
-              onPressed: () =>
-                  authState.isPosting ? null : authBloc.formSubmit(),
-            ),
-          ),
+          !authState.isPosting
+              ? SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: CustomFilledButton(
+                    text: 'Ingresar',
+                    buttonColor: Colors.black,
+                    onPressed: () =>
+                        authState.isPosting ? null : authBloc.formSubmit(),
+                  ),
+                )
+              : const CircularProgressIndicator(),
 
           const Spacer(flex: 2),
 
