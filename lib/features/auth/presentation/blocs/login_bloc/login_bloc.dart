@@ -1,13 +1,21 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
+import 'package:teslo_shop/features/auth/domain/entities/user.dart';
+import 'package:teslo_shop/features/auth/infrastructure/infrastructure.dart';
+import 'package:teslo_shop/features/auth/presentation/blocs/bloc.dart';
 import 'package:teslo_shop/features/shared/infrastructure/inputs/inputs.dart';
 
-part 'auth_event.dart';
-part 'auth_state.dart';
+part 'login_event.dart';
+part 'login_state.dart';
 
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc() : super(AuthState()) {
+class LoginBloc extends Bloc<LoginEvent, LoginState> {
+  final authRepository = AuthRepositoryImpl();
+
+  // Inyectamos el provider de Auth
+  final AuthBloc authBloc;
+
+  LoginBloc({required this.authBloc}) : super(LoginState()) {
     on<EmailChange>(_onEmailChange);
     on<PasswordChange>(_onPasswordChange);
     on<FormSubmit>(_onFormSubmit);
@@ -28,7 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   //* --- Logica de los eventos --- *//
 
-  void _onEmailChange(EmailChange event, Emitter<AuthState> emit) {
+  void _onEmailChange(EmailChange event, Emitter<LoginState> emit) {
     // Una nueva instancia del input Email como "dirty" (modificado)
     final newEmail = Email.dirty(event.value);
     emit(
@@ -40,7 +48,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onPasswordChange(PasswordChange event, Emitter<AuthState> emit) {
+  void _onPasswordChange(PasswordChange event, Emitter<LoginState> emit) {
     // Una nueva instancia del input Password como "dirty" (modificado)
     final newPassword = Password.dirty(event.value);
     emit(
@@ -52,7 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onFormSubmit(FormSubmit event, Emitter<AuthState> emit) async {
+  void _onFormSubmit(FormSubmit event, Emitter<LoginState> emit) async {
     // validacion de campos
     emit(_touchedEveryField());
 
@@ -64,8 +72,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(isPosting: true));
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      print(state);
+      final User user = await authRepository.login(
+        state.email.value,
+        state.password.value,
+      );
+
+      authBloc.loginSuccess(user);
     } catch (e) {
       print('Error en el login: $e');
     } finally {
@@ -73,8 +85,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // La función devuelve un AuthState
-  AuthState _touchedEveryField() {
+  // La función devuelve un LoginState
+  LoginState _touchedEveryField() {
     // "Tocamos" todos los campos con su valor actual para forzar la validación
     // Al pasarlos a .dirty(), si están vacíos, Formz los marcará con error
     final email = Email.dirty(state.email.value);

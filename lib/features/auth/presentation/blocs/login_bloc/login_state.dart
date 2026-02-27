@@ -1,13 +1,13 @@
-part of 'auth_bloc.dart';
+part of 'login_bloc.dart';
 
-class AuthState extends Equatable {
+class LoginState extends Equatable {
   final bool isPosting;
   final bool isFormPosting;
   final bool isValidForm;
   final Email email;
   final Password password;
 
-  const AuthState({
+  const LoginState({
     this.isPosting = false,
     this.isFormPosting = false,
     this.isValidForm = false,
@@ -24,13 +24,13 @@ class AuthState extends Equatable {
     password,
   ];
 
-  AuthState copyWith({
+  LoginState copyWith({
     bool? isPosting,
     bool? isFormPosting,
     bool? isValidForm,
     Email? email,
     Password? password,
-  }) => AuthState(
+  }) => LoginState(
     email: email ?? this.email,
     password: password ?? this.password,
     isFormPosting: isFormPosting ?? this.isFormPosting,

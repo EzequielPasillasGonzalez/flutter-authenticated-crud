@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:teslo_shop/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:teslo_shop/features/auth/presentation/blocs/bloc.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -59,9 +59,9 @@ class _LoginForm extends StatelessWidget {
     final textStyles = Theme.of(context).textTheme;
 
     // escuchar el estado
-    final authState = context.watch<AuthBloc>().state;
+    final loginState = context.watch<LoginBloc>().state;
     // ejecutar metodos
-    final authBloc = context.read<AuthBloc>();
+    final loginBloc = context.read<LoginBloc>();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -74,9 +74,9 @@ class _LoginForm extends StatelessWidget {
           CustomTextFormField(
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
-            onChanged: authBloc.emailChange,
-            errorMessage: authState.isFormPosting
-                ? authState.email.errorMessage
+            onChanged: loginBloc.emailChange,
+            errorMessage: loginState.isFormPosting
+                ? loginState.email.errorMessage
                 : null,
           ),
 
@@ -85,15 +85,15 @@ class _LoginForm extends StatelessWidget {
           CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
-            onChanged: authBloc.passwordChange,
-            errorMessage: authState.isFormPosting
-                ? authState.password.errorMessage
+            onChanged: loginBloc.passwordChange,
+            errorMessage: loginState.isFormPosting
+                ? loginState.password.errorMessage
                 : null,
           ),
 
           const SizedBox(height: 30),
 
-          !authState.isPosting
+          !loginState.isPosting
               ? SizedBox(
                   width: double.infinity,
                   height: 60,
@@ -101,7 +101,7 @@ class _LoginForm extends StatelessWidget {
                     text: 'Ingresar',
                     buttonColor: Colors.black,
                     onPressed: () =>
-                        authState.isPosting ? null : authBloc.formSubmit(),
+                        loginState.isPosting ? null : loginBloc.formSubmit(),
                   ),
                 )
               : const CircularProgressIndicator(),
