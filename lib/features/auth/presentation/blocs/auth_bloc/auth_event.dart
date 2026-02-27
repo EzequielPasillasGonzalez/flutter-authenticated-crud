@@ -18,5 +18,5 @@ class AuthLoginSuccess extends AuthEvent {
 
 class AuthLogoutRequested extends AuthEvent {
   final String errorMessage;
-  const AuthLogoutRequested({this.errorMessage = ''});
+  const AuthLogoutRequested([this.errorMessage = '']);
 }

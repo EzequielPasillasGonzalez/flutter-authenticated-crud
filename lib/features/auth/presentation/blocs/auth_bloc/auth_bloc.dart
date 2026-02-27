@@ -24,8 +24,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     add(AuthLoginSuccess(user));
   }
 
-  void logoutRequested() {
-    add(AuthLogoutRequested());
+  void logoutRequested(String message) {
+    add(AuthLogoutRequested(message));
   }
 
   //* --- Logica de eventos --- *//

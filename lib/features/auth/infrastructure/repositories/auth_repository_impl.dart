@@ -1,11 +1,17 @@
 import 'package:teslo_shop/features/auth/domain/domain.dart';
 import 'package:teslo_shop/features/auth/infrastructure/infrastructure.dart';
+import 'package:teslo_shop/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   final AuthDataSource dataSource;
+  final KeyValueStorageService keyValueStorageService;
 
-  AuthRepositoryImpl({AuthDataSource? dataSource})
-    : dataSource = dataSource ?? AuthDatasourceImpl();
+  AuthRepositoryImpl({
+    AuthDataSource? dataSource,
+    KeyValueStorageService? keyValueStorageService,
+  }) : dataSource = dataSource ?? AuthDatasourceImpl(),
+       keyValueStorageService =
+           keyValueStorageService ?? KeyValueStorageServiceImpl();
 
   @override
   Future<User> checkAuthStatus(String token) {
@@ -13,8 +19,12 @@ class AuthRepositoryImpl extends AuthRepository {
   }
 
   @override
-  Future<User> login(String email, String password) {
-    return dataSource.login(email, password);
+  Future<User> login(String email, String password) async {
+    final User user = await dataSource.login(email, password);
+
+    await keyValueStorageService.setKeyValue('token', user.token);
+
+    return user;
   }
 
   @override

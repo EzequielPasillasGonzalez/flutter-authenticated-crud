@@ -60,15 +60,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     );
   }
 
-  void _onFormSubmit(FormSubmit event, Emitter<LoginState> emit) async {
+  Future<void> _onFormSubmit(FormSubmit event, Emitter<LoginState> emit) async {
     // validacion de campos
     emit(_touchedEveryField());
 
-    // Si después de "ensuciarlos" el formulario NO es válido, cancelamos la petición.
-    // La UI automáticamente mostrará los textos rojos de error.
+    // Si el formulario NO es válido, cancela la petición
     if (!state.isValidForm) return;
 
-    // si esta correctamente validado el formulario, bloqueamos el boton, hacemos la peticion y mostramos el spinner
+    // Bloquea el boton y mostramos el spinner
     emit(state.copyWith(isPosting: true));
 
     try {
@@ -77,9 +76,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         state.password.value,
       );
 
+      // Dejamos que AuthBloc se encargue de manejar el usuario
       authBloc.loginSuccess(user);
+    } on WrongCredentials {
+      authBloc.logoutRequested('Correo o contraseña incorrectos');
     } catch (e) {
-      print('Error en el login: $e');
+      authBloc.logoutRequested('Error no controlado: Ocurrió un problema');
     } finally {
       emit(state.copyWith(isPosting: false));
     }
