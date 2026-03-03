@@ -22,11 +22,21 @@ class AuthDatasourceImpl extends AuthDataSource {
 
       return UserMapper.userJsonToEntity(response.data);
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) throw WrongCredentials();
+      if (e.response?.statusCode == 401) {
+        throw CustomError(
+          message: e.response?.data['message'] ?? 'Credenciales incorrectas',
+        );
+      }
       if (e.type == DioExceptionType.receiveTimeout) throw ConnectionTimeout();
-      throw CustomError(message: 'Un error inesperado', errorCode: 1);
+      throw CustomError(
+        message: 'Un error inesperado',
+        // errorCode: 1
+      );
     } catch (e) {
-      throw CustomError(message: 'Un error inesperado', errorCode: 1);
+      throw CustomError(
+        message: 'Un error inesperado',
+        // errorCode: 1
+      );
     }
   }
 

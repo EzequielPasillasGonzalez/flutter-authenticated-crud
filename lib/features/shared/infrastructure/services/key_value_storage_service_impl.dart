@@ -20,7 +20,7 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService {
       default:
         throw CustomError(
           message: 'Tipo de dato no soportado: ${T.runtimeType}',
-          errorCode: 2,
+          // errorCode: 2,
         );
     }
   }
@@ -47,7 +47,7 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService {
       default:
         throw CustomError(
           message: 'Tipo de dato no soportado: ${T.runtimeType}',
-          errorCode: 2,
+          // errorCode: 2,
         );
     }
   }

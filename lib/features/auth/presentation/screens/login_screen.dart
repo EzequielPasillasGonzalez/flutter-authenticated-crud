@@ -54,6 +54,27 @@ class LoginScreen extends StatelessWidget {
 class _LoginForm extends StatelessWidget {
   const _LoginForm();
 
+  void showErrorSnackbar(BuildContext context, AuthState state) {
+    if (state is AuthNotAuthenticated) {
+      if (state.errorMessage.isEmpty) return;
+
+      // Ocultamos cualquier snackbar anterior
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      // Mostramos el nuevo error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    if (state is AuthAuthenticated) {
+      context.go('/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
@@ -63,64 +84,68 @@ class _LoginForm extends StatelessWidget {
     // ejecutar metodos
     final loginBloc = context.read<LoginBloc>();
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        children: [
-          const SizedBox(height: 50),
-          Text('Login', style: textStyles.titleLarge),
-          const SizedBox(height: 90),
+    //  Envolver al formulario en un BlocListener apuntando al AuthBloc global
+    return BlocListener<AuthBloc, AuthState>(
+      // El 'listener' se ejecuta solo UNA VEZ cada vez que el AuthBloc cambia de estado
+      listener: showErrorSnackbar,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+        child: Column(
+          children: [
+            const SizedBox(height: 50),
+            Text('Login', style: textStyles.titleLarge),
+            const SizedBox(height: 90),
 
-          CustomTextFormField(
-            label: 'Correo',
-            keyboardType: TextInputType.emailAddress,
-            onChanged: loginBloc.emailChange,
-            errorMessage: loginState.isFormPosting
-                ? loginState.email.errorMessage
-                : null,
-          ),
+            CustomTextFormField(
+              label: 'Correo',
+              keyboardType: TextInputType.emailAddress,
+              onChanged: loginBloc.emailChange,
+              errorMessage: loginState.isFormPosting
+                  ? loginState.email.errorMessage
+                  : null,
+            ),
 
-          const SizedBox(height: 30),
+            const SizedBox(height: 30),
 
-          CustomTextFormField(
-            label: 'Contraseña',
-            obscureText: true,
-            onChanged: loginBloc.passwordChange,
-            errorMessage: loginState.isFormPosting
-                ? loginState.password.errorMessage
-                : null,
-          ),
+            CustomTextFormField(
+              label: 'Contraseña',
+              obscureText: true,
+              onChanged: loginBloc.passwordChange,
+              errorMessage: loginState.isFormPosting
+                  ? loginState.password.errorMessage
+                  : null,
+            ),
 
-          const SizedBox(height: 30),
+            const SizedBox(height: 30),
 
-          !loginState.isPosting
-              ? SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: CustomFilledButton(
-                    text: 'Ingresar',
-                    buttonColor: Colors.black,
-                    onPressed: () =>
-                        loginState.isPosting ? null : loginBloc.formSubmit(),
-                  ),
-                )
-              : const CircularProgressIndicator(),
+            !loginState.isPosting
+                ? SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: CustomFilledButton(
+                      text: 'Ingresar',
+                      buttonColor: Colors.black,
+                      onPressed: () => loginBloc.formSubmit(),
+                    ),
+                  )
+                : const CircularProgressIndicator(),
 
-          const Spacer(flex: 2),
+            const Spacer(flex: 2),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('¿No tienes cuenta?'),
-              TextButton(
-                onPressed: () => context.push('/register'),
-                child: const Text('Crea una aquí'),
-              ),
-            ],
-          ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('¿No tienes cuenta?'),
+                TextButton(
+                  onPressed: () => context.push('/register'),
+                  child: const Text('Crea una aquí'),
+                ),
+              ],
+            ),
 
-          const Spacer(flex: 1),
-        ],
+            const Spacer(flex: 1),
+          ],
+        ),
       ),
     );
   }

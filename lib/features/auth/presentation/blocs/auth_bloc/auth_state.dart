@@ -10,6 +10,9 @@ sealed class AuthState extends Equatable {
 // Caso en que la app se abre y revisa si hay un token guardado
 final class AuthChecking extends AuthState {
   const AuthChecking();
+
+  @override
+  List<Object?> get props => [];
 }
 
 // Caso en que la Sesion esta Activa, el usuario existe

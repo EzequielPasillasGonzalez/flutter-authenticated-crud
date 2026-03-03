@@ -22,7 +22,7 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<User> login(String email, String password) async {
     final User user = await dataSource.login(email, password);
 
-    await keyValueStorageService.setKeyValue('token', user.token);
+    await keyValueStorageService.setKeyValue<String>('token', user.token);
 
     return user;
   }

@@ -2,12 +2,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:teslo_shop/features/auth/domain/entities/user.dart';
 import 'package:teslo_shop/features/auth/infrastructure/repositories/auth_repository_impl.dart';
+import 'package:teslo_shop/features/shared/shared.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final authRepository = AuthRepositoryImpl();
+  final keyValueStorageService = KeyValueStorageServiceImpl();
 
   AuthBloc() : super(const AuthChecking()) {
     on<AuthCheckRequested>(_onCheckRequested);
@@ -33,17 +35,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
-    // Se revisa en el localStorage si hay un token
-
     try {
-      // authRepository.checkAuthStatus();
+      // Se revisa en el localStorage si hay un token
+      final token = await keyValueStorageService.getValue<String>('token');
+      if (token == null) {
+        return emit(const AuthNotAuthenticated(errorMessage: ''));
+      }
       // Si el token es valido traemos los datos del usuario y lo emitimos
+      final user = await authRepository.checkAuthStatus(token);
 
-      // Si no hay un token valido, lo retornamos al login
-      emit(
-        const AuthNotAuthenticated(errorMessage: 'No tienes una sesión activa'),
-      );
+      emit(AuthAuthenticated(user: user));
     } catch (e) {
+      await keyValueStorageService.removeKey('token');
       emit(const AuthNotAuthenticated(errorMessage: 'Sesión caducada'));
     }
   }
@@ -53,6 +56,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onLogoutRequested(AuthLogoutRequested event, Emitter<AuthState> emit) {
+    // Limpiar el error
+    emit(const AuthNotAuthenticated(errorMessage: ''));
+
+    // emitir el error real.
     emit(AuthNotAuthenticated(errorMessage: event.errorMessage));
   }
 }

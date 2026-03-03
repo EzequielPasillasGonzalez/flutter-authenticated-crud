@@ -80,6 +80,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       authBloc.loginSuccess(user);
     } on WrongCredentials {
       authBloc.logoutRequested('Correo o contraseña incorrectos');
+    } on CustomError catch (e) {
+      authBloc.logoutRequested(e.message);
     } catch (e) {
       authBloc.logoutRequested('Error no controlado: Ocurrió un problema');
     } finally {
