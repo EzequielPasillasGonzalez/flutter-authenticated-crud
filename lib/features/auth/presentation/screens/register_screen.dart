@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:teslo_shop/features/auth/presentation/blocs/bloc.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -70,64 +72,103 @@ class RegisterScreen extends StatelessWidget {
 class _RegisterForm extends StatelessWidget {
   const _RegisterForm();
 
+  void showErrorSnackbar(BuildContext context, AuthState state) {
+    if (state is AuthNotAuthenticated) {
+      if (state.errorMessage.isEmpty) return;
+
+      // Ocultamos cualquier snackbar anterior
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      // Mostramos el nuevo error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    if (state is AuthAuthenticated) {
+      context.go('/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
 
     final height = MediaQuery.of(context).size.height;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: 30,
-        children: [
-          Text('Nueva cuenta', style: textStyles.titleMedium),
+    final registerState = context.watch<RegisterBloc>().state;
+    final registerBloc = context.read<RegisterBloc>();
 
-          const CustomTextFormField(
-            label: 'Nombre completo',
-            keyboardType: TextInputType.emailAddress,
-          ),
+    return BlocListener<AuthBloc, AuthState>(
+      listener: showErrorSnackbar,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 50),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: 30,
+          children: [
+            Text('Nueva cuenta', style: textStyles.titleMedium),
 
-          const CustomTextFormField(
-            label: 'Correo',
-            keyboardType: TextInputType.emailAddress,
-          ),
-
-          const CustomTextFormField(label: 'Contraseña', obscureText: true),
-
-          const CustomTextFormField(
-            label: 'Repita la contraseña',
-            obscureText: true,
-          ),
-
-          SizedBox(
-            width: double.infinity,
-            height: height * 0.06,
-            child: CustomFilledButton(
-              text: 'Crear',
-              buttonColor: Colors.black,
-              onPressed: () {},
+            CustomTextFormField(
+              label: 'Nombre completo',
+              keyboardType: TextInputType.emailAddress,
+              onChanged: registerBloc.nameChange,
+              errorMessage: registerState.name.errorMessage,
             ),
-          ),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('¿Ya tienes cuenta?'),
-              TextButton(
-                onPressed: () {
-                  if (context.canPop()) {
-                    return context.pop();
-                  }
-                  context.go('/login');
-                },
-                child: const Text('Ingresa aquí'),
-              ),
-            ],
-          ),
-        ],
+            CustomTextFormField(
+              label: 'Correo',
+              keyboardType: TextInputType.emailAddress,
+              onChanged: registerBloc.emailChange,
+              errorMessage: registerState.email.errorMessage,
+            ),
+
+            CustomTextFormField(
+              label: 'Contraseña',
+              obscureText: true,
+              onChanged: registerBloc.passwordChange,
+              errorMessage: registerState.password.errorMessage,
+            ),
+
+            CustomTextFormField(
+              label: 'Repita la contraseña',
+              obscureText: true,
+              onChanged: registerBloc.confirmPasswordChange,
+              errorMessage: registerState.confirmPassword.errorMessage,
+            ),
+            !registerState.isPosting
+                ? SizedBox(
+                    width: double.infinity,
+                    height: height * 0.06,
+                    child: CustomFilledButton(
+                      text: 'Crear',
+                      buttonColor: Colors.black,
+                      onPressed: () => registerBloc.formSubmit(),
+                    ),
+                  )
+                : const CircularProgressIndicator(),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('¿Ya tienes cuenta?'),
+                TextButton(
+                  onPressed: () {
+                    if (context.canPop()) {
+                      return context.pop();
+                    }
+                    context.go('/login');
+                  },
+                  child: const Text('Ingresa aquí'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -28,7 +28,9 @@ class AuthRepositoryImpl extends AuthRepository {
   }
 
   @override
-  Future<User> register(String email, String password, String fullName) {
-    return dataSource.register(email, password, fullName);
+  Future<User> register(String email, String password, String fullName) async {
+    final User user = await dataSource.register(email, password, fullName);
+    await keyValueStorageService.setKeyValue<String>('token', user.token);
+    return user;
   }
 }

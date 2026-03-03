@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:teslo_shop/features/auth/auth.dart';
 import 'package:teslo_shop/features/auth/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:teslo_shop/features/auth/presentation/blocs/login_bloc/login_bloc.dart';
+import 'package:teslo_shop/features/auth/presentation/blocs/register_bloc/register_bloc.dart';
 import 'package:teslo_shop/features/products/products.dart';
 
 final appRouter = GoRouter(
@@ -21,7 +22,12 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/register',
-      builder: (context, state) => const RegisterScreen(),
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => RegisterBloc(authBloc: context.read<AuthBloc>()),
+          child: const RegisterScreen(),
+        );
+      },
     ),
 
     ///* Product Routes
