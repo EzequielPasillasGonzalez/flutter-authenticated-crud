@@ -14,13 +14,26 @@ void main() async {
   );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late final AppRouter appRouter;
+
+  @override
+  void initState() {
+    super.initState();
+    appRouter = AppRouter(authBloc: context.read<AuthBloc>());
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: appRouter,
+      routerConfig: appRouter.router,
       theme: AppTheme().getTheme(),
       debugShowCheckedModeBanner: false,
     );

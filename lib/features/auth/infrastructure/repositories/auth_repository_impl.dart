@@ -14,8 +14,11 @@ class AuthRepositoryImpl extends AuthRepository {
            keyValueStorageService ?? KeyValueStorageServiceImpl();
 
   @override
-  Future<User> checkAuthStatus(String token) {
-    return dataSource.checkAuthStatus(token);
+  Future<User> checkAuthStatus(String token) async {
+    final User user = await dataSource.checkAuthStatus(token);
+    await keyValueStorageService.setKeyValue<String>('token', user.token);
+
+    return user;
   }
 
   @override

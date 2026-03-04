@@ -26,7 +26,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     add(AuthLoginSuccess(user));
   }
 
-  void logoutRequested(String message) {
+  void logoutRequested([String message = '']) {
     add(AuthLogoutRequested(message));
   }
 
@@ -55,11 +55,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthAuthenticated(user: event.user));
   }
 
-  void _onLogoutRequested(AuthLogoutRequested event, Emitter<AuthState> emit) {
+  Future<void> _onLogoutRequested(
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    await keyValueStorageService.removeKey('token');
+
     // Limpiar el error
     emit(const AuthNotAuthenticated(errorMessage: ''));
 
     // emitir el error real.
-    emit(AuthNotAuthenticated(errorMessage: event.errorMessage));
+    if (event.errorMessage.isNotEmpty) {
+      emit(AuthNotAuthenticated(errorMessage: event.errorMessage));
+    }
   }
 }

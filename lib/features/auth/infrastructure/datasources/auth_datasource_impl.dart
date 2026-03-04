@@ -7,9 +7,31 @@ class AuthDatasourceImpl extends AuthDataSource {
   final dio = Dio(BaseOptions(baseUrl: Enviroment.apiUrl));
 
   @override
-  Future<User> checkAuthStatus(String token) {
-    // TODO: implement checkAuthStatus
-    throw UnimplementedError();
+  Future<User> checkAuthStatus(String token) async {
+    try {
+      final response = await dio.get(
+        '/auth/check-status',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      return UserMapper.userJsonToEntity(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw CustomError(
+          message: e.response?.data['message'] ?? 'Expiro la sesión',
+        );
+      }
+      if (e.type == DioExceptionType.receiveTimeout) throw ConnectionTimeout();
+      throw CustomError(
+        message: 'Un error inesperado',
+        // errorCode: 1
+      );
+    } catch (e) {
+      throw CustomError(
+        message: 'Un error inesperado',
+        // errorCode: 1
+      );
+    }
   }
 
   @override

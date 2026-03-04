@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:teslo_shop/features/auth/presentation/blocs/bloc.dart';
+import 'package:teslo_shop/features/auth/presentation/utils/utils.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -72,27 +73,6 @@ class RegisterScreen extends StatelessWidget {
 class _RegisterForm extends StatelessWidget {
   const _RegisterForm();
 
-  void showErrorSnackbar(BuildContext context, AuthState state) {
-    if (state is AuthNotAuthenticated) {
-      if (state.errorMessage.isEmpty) return;
-
-      // Ocultamos cualquier snackbar anterior
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-      // Mostramos el nuevo error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-
-    if (state is AuthAuthenticated) {
-      context.go('/');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
@@ -103,7 +83,7 @@ class _RegisterForm extends StatelessWidget {
     final registerBloc = context.read<RegisterBloc>();
 
     return BlocListener<AuthBloc, AuthState>(
-      listener: showErrorSnackbar,
+      listener: authStateListener,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 50),
         child: Column(
@@ -161,7 +141,6 @@ class _RegisterForm extends StatelessWidget {
                     if (context.canPop()) {
                       return context.pop();
                     }
-                    context.go('/login');
                   },
                   child: const Text('Ingresa aquí'),
                 ),
