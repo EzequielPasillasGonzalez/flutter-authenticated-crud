@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     notifyListeners();
+
+    //  Estar escuchando el Stream del BLoC
     _subscription = stream.asBroadcastStream().listen(
-      (dynamic _) => notifyListeners(),
+      (dynamic _) => notifyListeners(), // Por cada estado nuevo, notificar
     );
   }
 

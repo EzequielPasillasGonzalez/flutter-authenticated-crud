@@ -55,7 +55,6 @@ class LoginScreen extends StatelessWidget {
 class _LoginForm extends StatelessWidget {
   const _LoginForm();
 
- 
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
@@ -91,6 +90,7 @@ class _LoginForm extends StatelessWidget {
             CustomTextFormField(
               label: 'Contraseña',
               obscureText: true,
+              onFieldSubmited: (_) => loginBloc.formSubmit(),
               onChanged: loginBloc.passwordChange,
               errorMessage: loginState.isFormPosting
                   ? loginState.password.errorMessage
