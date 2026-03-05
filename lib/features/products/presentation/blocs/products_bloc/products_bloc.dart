@@ -13,6 +13,9 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   ProductsBloc() : super(ProductsState()) {
     on<ProductLoadNextPage>(_onProductLoadNextPage);
+    // TODO: GetProductByID
+    // TODO: SearchProductByTerm
+    // TODO: CreateUpdateProduct
   }
 
   //* --- Acceso por fuera  --- *// 

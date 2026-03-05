@@ -9,13 +9,13 @@ class ProductMapper {
     price: double.parse(json['price'].toString()),
     description: json['description'],
     slug: json['slug'],
-    stock: int.parse(json['stock']),
+    stock: json['stock'],
     sizes: List<String>.from(json['sizes'].map((size) => size)),
     gender: json['gender'],
     tags: List<String>.from(json['tags'].map((tag) => tag)),
     images: List<String>.from(
       json['images'].map(
-        (String image) => image.startsWith('http')
+        (dynamic image) => image.startsWith('http')
             ? image
             : '${Enviroment.apiUrl}/files/product/$image',
       ),
