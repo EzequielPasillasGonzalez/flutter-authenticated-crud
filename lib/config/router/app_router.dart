@@ -90,6 +90,18 @@ class AppRouter {
           );
         },
       ),
+
+      GoRoute(
+        path: '/product/:id',
+        builder: (context, state) {
+          return BlocProvider(
+            create: (context) => ProductsBloc(),
+            child: ProductScreen(
+              productId: state.pathParameters['id'] ?? 'no-id',
+            ),
+          );
+        },
+      ),
     ],
   );
 }
