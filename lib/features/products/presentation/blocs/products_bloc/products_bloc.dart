@@ -13,14 +13,18 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   ProductsBloc() : super(ProductsState()) {
     on<ProductLoadNextPage>(_onProductLoadNextPage);
-    // TODO: GetProductByID
+    on<GetProductByID>(_onGetProductById);
     // TODO: SearchProductByTerm
     // TODO: CreateUpdateProduct
   }
 
-  //* --- Acceso por fuera  --- *// 
+  //* --- Acceso por fuera  --- *//
   void loadNextPage() {
     add(ProductLoadNextPage());
+  }
+
+  void getProductByID(String id) {
+    add(GetProductByID(id));
   }
 
   //* --- Logica de los eventos --- *//
@@ -46,7 +50,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
           state.copyWith(
             isLoading: false,
             isLastPage:
-                false, // Como ya no hay productos, entonces bloqueamos la peiticones
+                true, // Como ya no hay productos, entonces bloqueamos la peiticones
           ),
         );
         return;
@@ -65,6 +69,26 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         state.copyWith(
           isLoading: false,
           errorMessage: 'Error al cargar más productos $e',
+        ),
+      );
+    }
+  }
+
+  void _onGetProductById(
+    GetProductByID event,
+    Emitter<ProductsState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    try {
+      final product = await productRepository.getProductById(event.id);
+
+      emit(state.copyWith(isLoading: false, selectedProduct: product));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'Error al obtener el producto $e',
         ),
       );
     }

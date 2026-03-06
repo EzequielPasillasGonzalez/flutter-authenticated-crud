@@ -43,6 +43,7 @@ class _ProductsViewState extends State<_ProductsView> {
 
   @override
   void initState() {
+    super.initState();
     context.read<ProductsBloc>().loadNextPage();
 
     scrollController.addListener(() {
@@ -51,8 +52,6 @@ class _ProductsViewState extends State<_ProductsView> {
         context.read<ProductsBloc>().loadNextPage();
       }
     });
-
-    super.initState();
   }
 
   @override
