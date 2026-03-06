@@ -1,0 +1,74 @@
+part of 'form_product_bloc.dart';
+
+class FormProductState extends Equatable {
+  const FormProductState({
+    this.isFormValid = false,
+    this.id,
+    this.title = const TitleProduct.dirty(''),
+    this.slug = const Slug.dirty(''),
+    this.price = const Price.dirty(0),
+    this.size = const [],
+    this.gender = 'men',
+    this.intStock = const Stock.dirty(0),
+    this.descrpition = '',
+    this.tags = '',
+    this.images = const [],
+    this.isLoading = false,
+  });
+
+  final bool isFormValid;
+  final bool isLoading;
+  final String? id;
+  final TitleProduct title;
+  final Slug slug;
+  final Price price;
+  final List<String> size;
+  final String gender;
+  final Stock intStock;
+  final String descrpition;
+  final String tags;
+  final List<String> images;
+
+  FormProductState copyWith({
+    bool? isFormValid,
+    bool? isLoading,
+    String? id,
+    TitleProduct? title,
+    Slug? slug,
+    Price? price,
+    List<String>? size,
+    String? gender,
+    Stock? intStock,
+    String? descrpition,
+    String? tags,
+    List<String>? images,
+  }) => FormProductState(
+    isFormValid: isFormValid ?? this.isFormValid,
+    isLoading: isLoading ?? this.isLoading,
+    id: id ?? this.id,
+    title: title ?? this.title,
+    slug: slug ?? this.slug,
+    price: price ?? this.price,
+    size: size ?? this.size,
+    gender: gender ?? this.gender,
+    intStock: intStock ?? this.intStock,
+    descrpition: descrpition ?? this.descrpition,
+    tags: tags ?? this.tags,
+    images: images ?? this.images,
+  );
+
+  @override
+  List<Object?> get props => [
+    isFormValid,
+    id,
+    title,
+    slug,
+    price,
+    size,
+    gender,
+    intStock,
+    descrpition,
+    tags,
+    images,
+  ];
+}

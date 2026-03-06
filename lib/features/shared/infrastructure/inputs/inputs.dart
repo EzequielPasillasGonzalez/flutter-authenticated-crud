@@ -5,4 +5,4 @@ export './name.dart';
 export 'price.dart';
 export 'stock.dart';
 export 'slug.dart';
-export 'slug.dart';
+export 'title_product.dart';
