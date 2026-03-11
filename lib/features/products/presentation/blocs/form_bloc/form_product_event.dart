@@ -11,56 +11,56 @@ class SubmitForm extends FormProductEvent {
   const SubmitForm();
 }
 
-class OnTitleChange extends FormProductEvent {
+class TitleChange extends FormProductEvent {
   final String title;
 
-  const OnTitleChange({required this.title});
+  const TitleChange({required this.title});
 }
 
-class OnSlugChange extends FormProductEvent {
+class SlugChange extends FormProductEvent {
   final String slug;
 
-  const OnSlugChange({required this.slug});
+  const SlugChange({required this.slug});
 }
 
-class OnPriceChange extends FormProductEvent {
+class PriceChange extends FormProductEvent {
   final double price;
 
-  const OnPriceChange({required this.price});
+  const PriceChange({required this.price});
 }
 
-class OnSizeChange extends FormProductEvent {
+class SizeChange extends FormProductEvent {
   final List<String> size;
 
-  const OnSizeChange({required this.size});
+  const SizeChange({required this.size});
 }
 
-class OnGenderChange extends FormProductEvent {
+class GenderChange extends FormProductEvent {
   final String gender;
 
-  const OnGenderChange({required this.gender});
+  const GenderChange({required this.gender});
 }
 
-class OnStockChange extends FormProductEvent {
+class StockChange extends FormProductEvent {
   final int stock;
 
-  const OnStockChange({required this.stock});
+  const StockChange({required this.stock});
 }
 
-class OnDescriptionChange extends FormProductEvent {
+class DescriptionChange extends FormProductEvent {
   final String descrpition;
 
-  const OnDescriptionChange({required this.descrpition});
+  const DescriptionChange({required this.descrpition});
 }
 
-class OnTagsChange extends FormProductEvent {
+class TagsChange extends FormProductEvent {
   final String tags;
 
-  const OnTagsChange({required this.tags});
+  const TagsChange({required this.tags});
 }
 
-class OnImagesChange extends FormProductEvent {
+class ImagesChange extends FormProductEvent {
   final List<String> images;
 
-  const OnImagesChange({required this.images});
+  const ImagesChange({required this.images});
 }

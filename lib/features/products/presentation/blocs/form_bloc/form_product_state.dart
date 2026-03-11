@@ -9,7 +9,7 @@ class FormProductState extends Equatable {
     this.price = const Price.dirty(0),
     this.size = const [],
     this.gender = 'men',
-    this.intStock = const Stock.dirty(0),
+    this.stock = const Stock.dirty(0),
     this.descrpition = '',
     this.tags = '',
     this.images = const [],
@@ -24,7 +24,7 @@ class FormProductState extends Equatable {
   final Price price;
   final List<String> size;
   final String gender;
-  final Stock intStock;
+  final Stock stock;
   final String descrpition;
   final String tags;
   final List<String> images;
@@ -38,7 +38,7 @@ class FormProductState extends Equatable {
     Price? price,
     List<String>? size,
     String? gender,
-    Stock? intStock,
+    Stock? stock,
     String? descrpition,
     String? tags,
     List<String>? images,
@@ -51,7 +51,7 @@ class FormProductState extends Equatable {
     price: price ?? this.price,
     size: size ?? this.size,
     gender: gender ?? this.gender,
-    intStock: intStock ?? this.intStock,
+    stock: stock ?? this.stock,
     descrpition: descrpition ?? this.descrpition,
     tags: tags ?? this.tags,
     images: images ?? this.images,
@@ -66,7 +66,7 @@ class FormProductState extends Equatable {
     price,
     size,
     gender,
-    intStock,
+    stock,
     descrpition,
     tags,
     images,
