@@ -14,10 +14,12 @@ class FormProductState extends Equatable {
     this.tags = '',
     this.images = const [],
     this.isLoading = false,
+    this.isPosting = false,
   });
 
   final bool isFormValid;
   final bool isLoading;
+  final bool isPosting;
   final String? id;
   final TitleProduct title;
   final Slug slug;
@@ -32,6 +34,7 @@ class FormProductState extends Equatable {
   FormProductState copyWith({
     bool? isFormValid,
     bool? isLoading,
+    bool? isPosting,
     String? id,
     TitleProduct? title,
     Slug? slug,
@@ -45,6 +48,7 @@ class FormProductState extends Equatable {
   }) => FormProductState(
     isFormValid: isFormValid ?? this.isFormValid,
     isLoading: isLoading ?? this.isLoading,
+    isPosting: isPosting ?? this.isPosting,
     id: id ?? this.id,
     title: title ?? this.title,
     slug: slug ?? this.slug,
@@ -69,6 +73,8 @@ class FormProductState extends Equatable {
     stock,
     description,
     tags,
+    isPosting,
+    isLoading,
     images,
   ];
 
@@ -82,8 +88,13 @@ class FormProductState extends Equatable {
       'sizes': size,
       'gender': gender,
       'description': description,
-      'tags': tags.split(',').map((tag) => tag.trim()).toList(),
-      'images': images,
+      'tags': tags.split(','),
+      'images': images
+          .map(
+            (image) =>
+                image.replaceAll('${Enviroment.apiUrl}/files/product/', ''),
+          )
+          .toList(),
     };
   }
 }

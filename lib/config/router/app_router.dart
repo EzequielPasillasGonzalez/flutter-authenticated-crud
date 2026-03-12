@@ -95,11 +95,8 @@ class AppRouter {
       GoRoute(
         path: '/product/:id',
         builder: (context, state) {
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (_) => ProductsBloc()),
-              BlocProvider(create: (_) => FormProductBloc()),
-            ],
+          return BlocProvider(
+            create: (context) => ProductsBloc(),
             child: ProductScreen(
               productId: state.pathParameters['id'] ?? 'no-id',
             ),

@@ -5,12 +5,53 @@ import 'package:teslo_shop/features/products/presentation/blocs/products_bloc/pr
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
-class ProductScreen extends StatelessWidget {
+class ProductScreen extends StatefulWidget {
   final String productId;
   const ProductScreen({super.key, required this.productId});
 
   @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<ProductsBloc>().getProductByID(widget.productId);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final productState = context.watch<ProductsBloc>().state;
+
+    if (productState.isLoading) {
+      return const Scaffold(body: FullScreenLoader());
+    }
+
+    final product = productState.selectedProduct;
+
+    // Validacion si el producto es nulo
+    if (product == null) {
+      return const Center(child: Text('Producto no encontrado'));
+    }
+
+    return BlocProvider(
+      create: (context) => FormProductBloc(product: product),
+      child: _ProductFormScaffold(product: product),
+    );
+  }
+}
+
+class _ProductFormScaffold extends StatelessWidget {
+  const _ProductFormScaffold({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    final formProductBloc = context.read<FormProductBloc>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar Producto'),
@@ -21,65 +62,25 @@ class ProductScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: _ProductView(productId: productId),
+      body: _ProductView(product: product),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => formProductBloc.onSubmitForm(),
         child: const Icon(Icons.save_as_outlined),
       ),
     );
   }
 }
 
-class _ProductView extends StatefulWidget {
-  const _ProductView({required this.productId});
+class _ProductView extends StatelessWidget {
+  const _ProductView({required this.product});
 
-  final String productId;
-
-  @override
-  State<_ProductView> createState() => _ProductViewState();
-}
-
-class _ProductViewState extends State<_ProductView> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<ProductsBloc>().getProductByID(widget.productId);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final productState = context.watch<ProductsBloc>().state;
-
-    // Validacion si está cargando
-    if (productState.isLoading) {
-      return const FullScreenLoader();
-    }
-
-    final product = productState.selectedProduct;
-
-    // Validacion si el producto es nulo
-    if (product == null) {
-      return const Center(child: Text('Producto no encontrado'));
-    }
-
-    // Mostrar una propiedad de texto
-    return BlocProvider(
-      create: (context) => FormProductBloc(product: product),
-      child: _ProductSelected(product: product),
-    );
-  }
-}
-
-class _ProductSelected extends StatelessWidget {
   final Product product;
-
-  const _ProductSelected({required this.product});
 
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
     final productoForm = context.watch<FormProductBloc>().state;
-
+    // Mostrar una propiedad de texto
     return ListView(
       children: [
         SizedBox(
@@ -119,7 +120,7 @@ class _ProductInformation extends StatelessWidget {
             isTopField: true,
             label: 'Nombre',
             initialValue: productoForm.title.value,
-            onChanged: productoFormBloc.onTitleChange,
+            onChanged: (value) => productoFormBloc.onTitleChange(value),
             errorMessage: productoForm.title.errorMessage,
           ),
           CustomProductField(

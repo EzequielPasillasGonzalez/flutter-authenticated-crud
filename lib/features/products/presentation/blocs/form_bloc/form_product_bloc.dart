@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
+import 'package:teslo_shop/config/config.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'package:teslo_shop/features/shared/infrastructure/inputs/inputs.dart';
 
@@ -13,17 +14,16 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
   FormProductBloc({this.onSubmitCallback, Product? product})
     : super(
         FormProductState(
-          // Si el producto existe, se llenam el estado inicial como "dirty"
-          id: product?.id,
-          title: TitleProduct.dirty(product?.title ?? ''),
-          slug: Slug.dirty(product?.slug ?? ''),
-          price: Price.dirty(product?.price ?? 0),
-          size: product?.sizes ?? [],
-          gender: product?.gender ?? 'men',
-          stock: Stock.dirty(product?.stock ?? 0),
-          description: product?.description ?? '',
-          tags: product?.tags.join(', ') ?? '',
-          images: product?.images ?? [],
+          id: product != null ? product.id : '',
+          title: TitleProduct.dirty(product != null ? product.title : ''),
+          slug: Slug.dirty(product != null ? product.slug : ''),
+          price: Price.dirty(product != null ? product.price : 0.0),
+          size: product != null ? product.sizes : [],
+          gender: product != null ? product.gender : 'men',
+          stock: Stock.dirty(product != null ? product.stock : 0),
+          description: product != null ? product.description : '',
+          tags: product != null ? product.tags.join(', ') : '',
+          images: product != null ? product.images : [],
         ),
       ) {
     on<TitleChange>(_onTitleChange);
@@ -72,6 +72,10 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
 
   void onImagesChange(List<String> images) {
     add(ImagesChange(images: images));
+  }
+
+  void onSubmitForm() {
+    add(SubmitForm());
   }
 
   void _onTitleChange(TitleChange event, Emitter<FormProductState> emit) {
@@ -162,32 +166,47 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
   ) async {
     // Emitit el estado con todos los campos tocados (dirty)
     // Esto es vital para que la pantalla muestre los errores en rojo
-    final stateWithDirtyFields = _touchedEveryFields();
+    emit(_touchedEveryFields());
 
-    emit(stateWithDirtyFields);
-
-    if (!stateWithDirtyFields.isFormValid) return;
+    if (!state.isFormValid) return;
 
     if (onSubmitCallback == null) return;
 
     emit(state.copyWith(isLoading: true));
 
     try {
-      onSubmitCallback!(state.productLike);
+      return onSubmitCallback!(state.productLike);
     } catch (e) {
     } finally {
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false, isPosting: false));
     }
   }
 
   FormProductState _touchedEveryFields() {
+    final description = state.description;
+    final gender = state.gender;
+    final images = state.images;
+    final price = Price.dirty(state.price.value);
+    final size = state.size;
+    final slug = Slug.dirty(state.slug.value);
+    final stock = Stock.dirty(state.stock.value);
+    final tags = state.tags;
+    final title = TitleProduct.dirty(state.title.value);
+
+    print(state.title);
+
     return state.copyWith(
-      isFormValid: Formz.validate([
-        Price.dirty(state.price.value),
-        Slug.dirty(state.slug.value),
-        Stock.dirty(state.stock.value),
-        TitleProduct.dirty(state.title.value),
-      ]),
+      isPosting: true,
+      description: description,
+      gender: gender,
+      images: images,
+      price: price,
+      size: size,
+      slug: slug,
+      stock: stock,
+      tags: tags,
+      title: title,
+      isFormValid: Formz.validate([price, slug, stock, title]),
     );
   }
 }
