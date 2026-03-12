@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
+import 'package:teslo_shop/features/products/presentation/blocs/form_bloc/form_product_bloc.dart';
 import 'package:teslo_shop/features/products/presentation/blocs/products_bloc/products_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
@@ -62,7 +63,10 @@ class _ProductViewState extends State<_ProductView> {
     }
 
     // Mostrar una propiedad de texto
-    return _ProductSelected(product: product);
+    return BlocProvider(
+      create: (context) => FormProductBloc(product: product),
+      child: _ProductSelected(product: product),
+    );
   }
 }
 
@@ -74,17 +78,20 @@ class _ProductSelected extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
+    final productoForm = context.watch<FormProductBloc>().state;
 
     return ListView(
       children: [
         SizedBox(
           height: 250,
           width: 600,
-          child: _ImageGallery(images: product.images),
+          child: _ImageGallery(images: productoForm.images),
         ),
 
         const SizedBox(height: 10),
-        Center(child: Text(product.title, style: textStyles.titleSmall)),
+        Center(
+          child: Text(productoForm.title.value, style: textStyles.titleSmall),
+        ),
         const SizedBox(height: 10),
         _ProductInformation(product: product),
       ],
@@ -98,6 +105,9 @@ class _ProductInformation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productoForm = context.watch<FormProductBloc>().state;
+    final productoFormBloc = context.read<FormProductBloc>();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -108,36 +118,56 @@ class _ProductInformation extends StatelessWidget {
           CustomProductField(
             isTopField: true,
             label: 'Nombre',
-            initialValue: product.title,
+            initialValue: productoForm.title.value,
+            onChanged: productoFormBloc.onTitleChange,
+            errorMessage: productoForm.title.errorMessage,
           ),
-          CustomProductField(label: 'Slug', initialValue: product.slug),
+          CustomProductField(
+            label: 'Slug',
+            initialValue: productoForm.slug.value,
+            onChanged: productoFormBloc.onSlugChange,
+            errorMessage: productoForm.slug.errorMessage,
+          ),
           CustomProductField(
             isBottomField: true,
             label: 'Precio',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            initialValue: product.price.toString(),
+            initialValue: productoForm.price.value.toString(),
+            onChanged: (value) =>
+                productoFormBloc.onPriceChange(double.tryParse(value) ?? -1),
+            errorMessage: productoForm.price.errorMessage,
           ),
 
           const SizedBox(height: 15),
           const Text('Extras'),
 
-          _SizeSelector(selectedSizes: product.sizes),
+          _SizeSelector(
+            selectedSizes: productoForm.size,
+            onSizesChanged: productoFormBloc.onSizeChange,
+          ),
           const SizedBox(height: 5),
-          _GenderSelector(selectedGender: product.gender),
+          _GenderSelector(
+            selectedGender: productoForm.gender,
+            onSelectedGender: productoFormBloc.onGenderChange,
+          ),
 
           const SizedBox(height: 15),
           CustomProductField(
             isTopField: true,
             label: 'Existencias',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            initialValue: product.stock.toString(),
+            initialValue: productoForm.stock.value.toString(),
+            onChanged: (value) =>
+                productoFormBloc.onStockChange(int.tryParse(value) ?? -1),
+            errorMessage: productoForm.stock.errorMessage,
           ),
 
           CustomProductField(
             maxLines: 6,
             label: 'Descripción',
             keyboardType: TextInputType.multiline,
-            initialValue: product.description,
+            initialValue: productoForm.description,
+            onChanged: productoFormBloc.onDescriptionChange,
           ),
 
           CustomProductField(
@@ -145,7 +175,8 @@ class _ProductInformation extends StatelessWidget {
             maxLines: 2,
             label: 'Tags (Separados por coma)',
             keyboardType: TextInputType.multiline,
-            initialValue: product.tags.join(', '),
+            initialValue: productoForm.tags,
+            onChanged: productoFormBloc.onTagsChange,
           ),
 
           const SizedBox(height: 100),
@@ -159,7 +190,12 @@ class _SizeSelector extends StatelessWidget {
   final List<String> selectedSizes;
   final List<String> sizes = const ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
-  const _SizeSelector({required this.selectedSizes});
+  final void Function(List<String> selectedSizes) onSizesChanged;
+
+  const _SizeSelector({
+    required this.selectedSizes,
+    required this.onSizesChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +210,7 @@ class _SizeSelector extends StatelessWidget {
       }).toList(),
       selected: Set.from(selectedSizes),
       onSelectionChanged: (newSelection) {
-        print(newSelection);
+        onSizesChanged(List.from(newSelection));
       },
       multiSelectionEnabled: true,
     );
@@ -186,7 +222,12 @@ class _GenderSelector extends StatelessWidget {
   final List<String> genders = const ['men', 'women', 'kid'];
   final List<IconData> genderIcons = const [Icons.man, Icons.woman, Icons.boy];
 
-  const _GenderSelector({required this.selectedGender});
+  final void Function(String selectedGender) onSelectedGender;
+
+  const _GenderSelector({
+    required this.selectedGender,
+    required this.onSelectedGender,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +246,7 @@ class _GenderSelector extends StatelessWidget {
         }).toList(),
         selected: {selectedGender},
         onSelectionChanged: (newSelection) {
-          print(newSelection);
+          onSelectedGender(newSelection.first);
         },
       ),
     );

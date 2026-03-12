@@ -10,7 +10,7 @@ class FormProductState extends Equatable {
     this.size = const [],
     this.gender = 'men',
     this.stock = const Stock.dirty(0),
-    this.descrpition = '',
+    this.description = '',
     this.tags = '',
     this.images = const [],
     this.isLoading = false,
@@ -25,7 +25,7 @@ class FormProductState extends Equatable {
   final List<String> size;
   final String gender;
   final Stock stock;
-  final String descrpition;
+  final String description;
   final String tags;
   final List<String> images;
 
@@ -39,7 +39,7 @@ class FormProductState extends Equatable {
     List<String>? size,
     String? gender,
     Stock? stock,
-    String? descrpition,
+    String? description,
     String? tags,
     List<String>? images,
   }) => FormProductState(
@@ -52,7 +52,7 @@ class FormProductState extends Equatable {
     size: size ?? this.size,
     gender: gender ?? this.gender,
     stock: stock ?? this.stock,
-    descrpition: descrpition ?? this.descrpition,
+    description: description ?? this.description,
     tags: tags ?? this.tags,
     images: images ?? this.images,
   );
@@ -67,8 +67,23 @@ class FormProductState extends Equatable {
     size,
     gender,
     stock,
-    descrpition,
+    description,
     tags,
     images,
   ];
+
+  Map<String, dynamic> get productLike {
+    return {
+      'id': id,
+      'title': title.value,
+      'slug': slug.value,
+      'price': price.value,
+      'stock': stock.value,
+      'sizes': size,
+      'gender': gender,
+      'description': description,
+      'tags': tags.split(',').map((tag) => tag.trim()).toList(),
+      'images': images,
+    };
+  }
 }

@@ -10,7 +10,22 @@ part 'form_product_state.dart';
 class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
   final void Function(Map<String, dynamic> productLike)? onSubmitCallback;
 
-  FormProductBloc({this.onSubmitCallback}) : super(FormProductState()) {
+  FormProductBloc({this.onSubmitCallback, Product? product})
+    : super(
+        FormProductState(
+          // Si el producto existe, se llenam el estado inicial como "dirty"
+          id: product?.id,
+          title: TitleProduct.dirty(product?.title ?? ''),
+          slug: Slug.dirty(product?.slug ?? ''),
+          price: Price.dirty(product?.price ?? 0),
+          size: product?.sizes ?? [],
+          gender: product?.gender ?? 'men',
+          stock: Stock.dirty(product?.stock ?? 0),
+          description: product?.description ?? '',
+          tags: product?.tags.join(', ') ?? '',
+          images: product?.images ?? [],
+        ),
+      ) {
     on<TitleChange>(_onTitleChange);
     on<SlugChange>(_onSlugChange);
     on<PriceChange>(_onPriceChange);
@@ -20,6 +35,7 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
     on<DescriptionChange>(_onDescriptionChange);
     on<TagsChange>(_onTagsChange);
     on<ImagesChange>(_onImagesChange);
+    on<SubmitForm>(_onSubmitForm);
   }
 
   void onTitleChange(String title) {
@@ -47,7 +63,7 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
   }
 
   void onDescriptionChange(String descripcion) {
-    add(DescriptionChange(descrpition: descripcion));
+    add(DescriptionChange(description: descripcion));
   }
 
   void onTagsChange(String tags) {
@@ -104,12 +120,11 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
   }
 
   void _onStockChange(StockChange event, Emitter<FormProductState> emit) {
-    final newStock = Stock.dirty(event.stock);
     emit(
       state.copyWith(
-        stock: newStock,
+        stock: Stock.dirty(event.stock),
         isFormValid: Formz.validate([
-          newStock,
+          Stock.dirty(event.stock),
           state.title,
           state.slug,
           state.price,
@@ -119,46 +134,50 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
   }
 
   void _onSizeChange(SizeChange event, Emitter<FormProductState> emit) {
-    final newSize = event.size;
-    emit(state.copyWith(size: [...state.size, ...newSize]));
+    emit(state.copyWith(size: event.size));
   }
 
   void _onGenderChange(GenderChange event, Emitter<FormProductState> emit) {
-    final newGender = event.gender;
-    emit(state.copyWith(gender: newGender));
+    emit(state.copyWith(gender: event.gender));
   }
 
   void _onDescriptionChange(
     DescriptionChange event,
     Emitter<FormProductState> emit,
   ) {
-    final newDescription = event.descrpition;
-    emit(state.copyWith(descrpition: newDescription));
+    emit(state.copyWith(description: event.description));
   }
 
   void _onTagsChange(TagsChange event, Emitter<FormProductState> emit) {
-    final newTags = event.tags;
-    emit(state.copyWith(tags: newTags));
+    emit(state.copyWith(tags: event.tags));
   }
 
   void _onImagesChange(ImagesChange event, Emitter<FormProductState> emit) {
-    final newImages = event.images;
-    emit(state.copyWith(images: [...state.images, ...newImages]));
+    emit(state.copyWith(images: event.images));
   }
 
-  Future<bool> onFormsubmit(
+  Future<void> _onSubmitForm(
     SubmitForm event,
     Emitter<FormProductState> emit,
   ) async {
-    _touchedEveryFields();
-    if (!state.isFormValid) return false;
+    // Emitit el estado con todos los campos tocados (dirty)
+    // Esto es vital para que la pantalla muestre los errores en rojo
+    final stateWithDirtyFields = _touchedEveryFields();
 
-    if (onSubmitCallback == null) return false;
+    emit(stateWithDirtyFields);
 
-    // TODO: validar si esta creando un nuevo producto o editando
-    // TODO: construir el producto para poder enviar al api
+    if (!stateWithDirtyFields.isFormValid) return;
 
-    return true;
+    if (onSubmitCallback == null) return;
+
+    emit(state.copyWith(isLoading: true));
+
+    try {
+      onSubmitCallback!(state.productLike);
+    } catch (e) {
+    } finally {
+      emit(state.copyWith(isLoading: false));
+    }
   }
 
   FormProductState _touchedEveryFields() {

@@ -48,9 +48,9 @@ class StockChange extends FormProductEvent {
 }
 
 class DescriptionChange extends FormProductEvent {
-  final String descrpition;
+  final String description;
 
-  const DescriptionChange({required this.descrpition});
+  const DescriptionChange({required this.description});
 }
 
 class TagsChange extends FormProductEvent {
