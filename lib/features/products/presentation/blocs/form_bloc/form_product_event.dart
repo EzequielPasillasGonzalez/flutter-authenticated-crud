@@ -60,7 +60,7 @@ class TagsChange extends FormProductEvent {
 }
 
 class ImagesChange extends FormProductEvent {
-  final List<String> images;
+  final String image;
 
-  const ImagesChange({required this.images});
+  const ImagesChange({required this.image});
 }

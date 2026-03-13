@@ -70,8 +70,8 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
     add(TagsChange(tags: tags));
   }
 
-  void onImagesChange(List<String> images) {
-    add(ImagesChange(images: images));
+  void onImagesChange(String image) {
+    add(ImagesChange(image: image));
   }
 
   void onSubmitForm() {
@@ -157,7 +157,7 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
   }
 
   void _onImagesChange(ImagesChange event, Emitter<FormProductState> emit) {
-    emit(state.copyWith(images: event.images));
+    emit(state.copyWith(images: [...state.images, event.image]));
   }
 
   Future<void> _onSubmitForm(
