@@ -3,6 +3,7 @@ import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'package:teslo_shop/features/products/presentation/blocs/form_bloc/form_product_bloc.dart';
 import 'package:teslo_shop/features/products/presentation/blocs/products_bloc/products_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:teslo_shop/features/products/presentation/helpers/product_listener.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -24,6 +25,7 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     final productState = context.watch<ProductsBloc>().state;
+    final productBloc = context.read<ProductsBloc>();
 
     if (productState.isLoading) {
       return const Scaffold(body: FullScreenLoader());
@@ -36,9 +38,16 @@ class _ProductScreenState extends State<ProductScreen> {
       return const Center(child: Text('Producto no encontrado'));
     }
 
-    return BlocProvider(
-      create: (context) => FormProductBloc(product: product),
-      child: _ProductFormScaffold(product: product),
+    return BlocListener<ProductsBloc, ProductsState>(
+      listener: productStateListener,
+      child: BlocProvider(
+        create: (context) => FormProductBloc(
+          product: product,
+          onSubmitCallback: (productLike) =>
+              productBloc.createUpdateProduct(productLike),
+        ),
+        child: _ProductFormScaffold(product: product),
+      ),
     );
   }
 }

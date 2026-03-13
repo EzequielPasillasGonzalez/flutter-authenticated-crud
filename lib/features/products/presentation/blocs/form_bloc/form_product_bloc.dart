@@ -9,9 +9,9 @@ part 'form_product_event.dart';
 part 'form_product_state.dart';
 
 class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
-  final void Function(Map<String, dynamic> productLike)? onSubmitCallback;
+  final void Function(Map<String, dynamic> productLike) onSubmitCallback;
 
-  FormProductBloc({this.onSubmitCallback, Product? product})
+  FormProductBloc({required this.onSubmitCallback, Product? product})
     : super(
         FormProductState(
           id: product != null ? product.id : '',
@@ -169,8 +169,6 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
     emit(_touchedEveryFields());
 
     if (!state.isFormValid) return;
-
-    if (onSubmitCallback == null) return;
 
     emit(state.copyWith(isLoading: true));
 

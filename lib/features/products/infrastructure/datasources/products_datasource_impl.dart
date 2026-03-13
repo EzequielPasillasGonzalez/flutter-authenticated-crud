@@ -33,8 +33,36 @@ class ProductsDatasourceImpl extends ProductsDatasource {
 
   @override
   Future<Product> createUpadteProduct(Map<String, dynamic> productLike) async {
-    // TODO: implement createUpadteProduct
-    throw UnimplementedError();
+    try {
+      final String? productId = productLike['id'];
+      final String method = (productId == null) ? 'POST' : 'PATCH';
+      final String url = (productId == null) ? '/post' : '/products/$productId';
+      productLike.remove('id');
+
+      final response = await dio.request(
+        url,
+        data: productLike,
+        options: Options(method: method),
+      );
+
+      return ProductMapper.jsonToEntity(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw CustomError(
+          message: e.response?.data['message'] ?? 'Expiro la sesión',
+        );
+      }
+      if (e.type == DioExceptionType.receiveTimeout) throw ConnectionTimeout();
+      throw CustomError(
+        message: 'Error al obtener productos: ${e.message}',
+        // errorCode: 1
+      );
+    } catch (e) {
+      throw CustomError(
+        message: 'Un error inesperado',
+        // errorCode: 1
+      );
+    }
   }
 
   @override

@@ -15,7 +15,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     on<ProductLoadNextPage>(_onProductLoadNextPage);
     on<GetProductByID>(_onGetProductById);
     // TODO: SearchProductByTerm
-    // TODO: CreateUpdateProduct
+    on<CreateUpdateProduct>(_onCreateUpdateProduct);
   }
 
   //* --- Acceso por fuera  --- *//
@@ -25,6 +25,10 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   void getProductByID(String id) {
     add(GetProductByID(id));
+  }
+
+  void createUpdateProduct(Map<String, dynamic> productLike) {
+    add(CreateUpdateProduct(productLike));
   }
 
   //* --- Logica de los eventos --- *//
@@ -65,16 +69,61 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         ),
       );
     } catch (e) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          errorMessage: 'Error al cargar más productos $e',
-        ),
-      );
+      emit(_limpiarError());
+      emit(state.copyWith(errorMessage: 'Error al cargar más productos $e'));
+    } finally {
+      emit(_limpiarLoading());
     }
   }
 
-  void _onGetProductById(
+  Future<void> _onCreateUpdateProduct(
+    CreateUpdateProduct event,
+    Emitter<ProductsState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, errorMessage: ''));
+
+    try {
+      final product = await productRepository.createUpadteProduct(
+        event.productLike,
+      );
+
+      final isProductInList = state.products.any(
+        (element) => element.id == product.id,
+      );
+
+      if (!isProductInList) {
+        emit(
+          state.copyWith(
+            products: [...state.products, product],
+            selectedProduct: product,
+          ),
+        );
+
+        return;
+      }
+
+      emit(
+        state.copyWith(
+          selectedProduct: product,
+          products: state.products
+              .map((element) => (element.id == product.id) ? product : element)
+              .toList(),
+        ),
+      );
+
+      return;
+    } catch (e) {
+      emit(
+        state.copyWith(
+          errorMessage: 'Error al crear/actualizar el producto $e',
+        ),
+      );
+    } finally {
+      emit(_limpiarLoading());
+    }
+  }
+
+  Future<void> _onGetProductById(
     GetProductByID event,
     Emitter<ProductsState> emit,
   ) async {
@@ -83,14 +132,20 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     try {
       final product = await productRepository.getProductById(event.id);
 
-      emit(state.copyWith(isLoading: false, selectedProduct: product));
+      emit(state.copyWith(selectedProduct: product));
     } catch (e) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          errorMessage: 'Error al obtener el producto $e',
-        ),
-      );
+      _limpiarError();
+      emit(state.copyWith(errorMessage: 'Error al obtener el producto $e'));
+    } finally {
+      emit(_limpiarLoading());
     }
+  }
+
+  ProductsState _limpiarLoading() {
+    return state.copyWith(isLoading: false);
+  }
+
+  ProductsState _limpiarError() {
+    return state.copyWith(errorMessage: '');
   }
 }

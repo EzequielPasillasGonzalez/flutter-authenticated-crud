@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:teslo_shop/features/products/presentation/blocs/products_bloc/products_bloc.dart';
+import 'package:teslo_shop/features/products/presentation/helpers/product_listener.dart';
 import 'package:teslo_shop/features/products/presentation/widgets/product_card.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
@@ -63,22 +64,25 @@ class _ProductsViewState extends State<_ProductsView> {
   @override
   Widget build(BuildContext context) {
     final productsState = context.watch<ProductsBloc>().state;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: MasonryGridView.count(
-        physics: const BouncingScrollPhysics(),
-        controller: scrollController,
-        crossAxisCount: 2,
-        mainAxisSpacing: 20,
-        crossAxisSpacing: 35,
-        itemCount: productsState.products.length,
-        itemBuilder: (context, index) {
-          final product = productsState.products[index];
-          return GestureDetector(
-            onTap: () => context.push('/product/${product.id}'),
-            child: ProductCard(product: product),
-          );
-        },
+    return BlocListener<ProductsBloc, ProductsState>(
+      listener: productStateListener,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: MasonryGridView.count(
+          physics: const BouncingScrollPhysics(),
+          controller: scrollController,
+          crossAxisCount: 2,
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 35,
+          itemCount: productsState.products.length,
+          itemBuilder: (context, index) {
+            final product = productsState.products[index];
+            return GestureDetector(
+              onTap: () => context.push('/product/${product.id}'),
+              child: ProductCard(product: product),
+            );
+          },
+        ),
       ),
     );
   }
