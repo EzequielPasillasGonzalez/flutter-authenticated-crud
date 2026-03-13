@@ -3,8 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:teslo_shop/config/router/go_router_refresh_stream.dart';
 import 'package:teslo_shop/features/auth/auth.dart';
 import 'package:teslo_shop/features/auth/presentation/blocs/bloc.dart';
-import 'package:teslo_shop/features/products/presentation/blocs/form_bloc/form_product_bloc.dart';
-import 'package:teslo_shop/features/products/presentation/blocs/products_bloc/products_bloc.dart';
 import 'package:teslo_shop/features/products/products.dart';
 
 class AppRouter {
@@ -85,21 +83,15 @@ class AppRouter {
       GoRoute(
         path: '/',
         builder: (context, state) {
-          return BlocProvider(
-            create: (context) => ProductsBloc(),
-            child: const ProductsScreen(),
-          );
+          return const ProductsScreen();
         },
       ),
 
       GoRoute(
         path: '/product/:id',
         builder: (context, state) {
-          return BlocProvider(
-            create: (context) => ProductsBloc(),
-            child: ProductScreen(
-              productId: state.pathParameters['id'] ?? 'no-id',
-            ),
+          return ProductScreen(
+            productId: state.pathParameters['id'] ?? 'no-id',
           );
         },
       ),

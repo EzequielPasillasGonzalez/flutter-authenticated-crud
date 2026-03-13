@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:teslo_shop/config/config.dart';
 import 'package:teslo_shop/features/auth/presentation/blocs/bloc.dart';
+import 'package:teslo_shop/features/products/presentation/blocs/products_bloc/products_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Enviroment.initEnviroment();
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => AuthBloc()..checkAuth())],
+      providers: [
+        BlocProvider(create: (_) => AuthBloc()..checkAuth()),
+        BlocProvider(create: (_) => ProductsBloc()),
+      ],
       child: const MainApp(),
     ),
   );
