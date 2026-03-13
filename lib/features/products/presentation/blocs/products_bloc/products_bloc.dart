@@ -40,7 +40,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     if (state.isLastPage || state.isLoading) return;
 
     // Notificar que ya esta haciendo una peticion
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, errorMessage: ''));
 
     try {
       final products = await productRepository.getProductsByPage(
@@ -69,7 +69,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         ),
       );
     } catch (e) {
-      emit(_limpiarError());
       emit(state.copyWith(errorMessage: 'Error al cargar más productos $e'));
     } finally {
       emit(_limpiarLoading());
@@ -127,14 +126,18 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     GetProductByID event,
     Emitter<ProductsState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    if (event.id == 'new') {
+      emit(state.copyWith(isLoading: false, selectedProduct: Product.empty()));
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, errorMessage: ''));
 
     try {
       final product = await productRepository.getProductById(event.id);
 
       emit(state.copyWith(selectedProduct: product));
     } catch (e) {
-      _limpiarError();
       emit(state.copyWith(errorMessage: 'Error al obtener el producto $e'));
     } finally {
       emit(_limpiarLoading());
@@ -143,9 +146,5 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   ProductsState _limpiarLoading() {
     return state.copyWith(isLoading: false);
-  }
-
-  ProductsState _limpiarError() {
-    return state.copyWith(errorMessage: '');
   }
 }

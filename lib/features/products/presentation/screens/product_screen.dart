@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'package:teslo_shop/features/products/presentation/blocs/form_bloc/form_product_bloc.dart';
 import 'package:teslo_shop/features/products/presentation/blocs/products_bloc/products_bloc.dart';
@@ -26,25 +27,39 @@ class _ProductScreenState extends State<ProductScreen> {
   Widget build(BuildContext context) {
     final productState = context.watch<ProductsBloc>().state;
     final productBloc = context.read<ProductsBloc>();
+    final product = productState.selectedProduct;
 
-    if (productState.isLoading) {
+    // Comparar si el ID en memoria es el mismo que busca la ruta
+    final isMatchingId = product?.id == widget.productId;
+
+    // Si está cargando o si el producto en memoria es viejo
+    // y no coincide con la ruta, forzamos el loader
+    if (productState.isLoading || (!isMatchingId && product != null)) {
       return const Scaffold(body: FullScreenLoader());
     }
 
-    final product = productState.selectedProduct;
-
     // Validacion si el producto es nulo
     if (product == null) {
-      return const Center(child: Text('Producto no encontrado'));
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: const Center(child: Text('Producto no encontrado')),
+      );
     }
 
     return BlocListener<ProductsBloc, ProductsState>(
-      listener: productStateListener,
+      listener: (context, state) {
+        productStateListener(context, state);
+        if (widget.productId == 'new' && state.selectedProduct?.id != 'new') {
+          context.canPop();
+        }
+      },
       child: BlocProvider(
         create: (context) => FormProductBloc(
           product: product,
-          onSubmitCallback: (productLike) =>
-              productBloc.createUpdateProduct(productLike),
+          onSubmitCallback: (productLike) {
+            FocusScope.of(context).unfocus();
+            productBloc.createUpdateProduct(productLike);
+          },
         ),
         child: _ProductFormScaffold(product: product),
       ),
@@ -61,20 +76,23 @@ class _ProductFormScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final formProductBloc = context.read<FormProductBloc>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar Producto'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.camera_alt_outlined),
-          ),
-        ],
-      ),
-      body: _ProductView(product: product),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => formProductBloc.onSubmitForm(),
-        child: const Icon(Icons.save_as_outlined),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Editar Producto'),
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.camera_alt_outlined),
+            ),
+          ],
+        ),
+        body: _ProductView(product: product),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => formProductBloc.onSubmitForm(),
+          child: const Icon(Icons.save_as_outlined),
+        ),
       ),
     );
   }
@@ -220,6 +238,7 @@ class _SizeSelector extends StatelessWidget {
       }).toList(),
       selected: Set.from(selectedSizes),
       onSelectionChanged: (newSelection) {
+        FocusScope.of(context).unfocus();
         onSizesChanged(List.from(newSelection));
       },
       multiSelectionEnabled: true,
@@ -256,6 +275,8 @@ class _GenderSelector extends StatelessWidget {
         }).toList(),
         selected: {selectedGender},
         onSelectionChanged: (newSelection) {
+          FocusScope.of(context).unfocus();
+
           onSelectedGender(newSelection.first);
         },
       ),

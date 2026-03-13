@@ -173,7 +173,7 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      return onSubmitCallback!(state.productLike);
+      return onSubmitCallback(state.productLike);
     } catch (e) {
     } finally {
       emit(state.copyWith(isLoading: false, isPosting: false));
@@ -190,8 +190,6 @@ class FormProductBloc extends Bloc<FormProductEvent, FormProductState> {
     final stock = Stock.dirty(state.stock.value);
     final tags = state.tags;
     final title = TitleProduct.dirty(state.title.value);
-
-    print(state.title);
 
     return state.copyWith(
       isPosting: true,

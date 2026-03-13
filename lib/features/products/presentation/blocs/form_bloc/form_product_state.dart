@@ -80,7 +80,7 @@ class FormProductState extends Equatable {
 
   Map<String, dynamic> get productLike {
     return {
-      'id': id,
+      'id': (id == 'new') ? null : id,
       'title': title.value,
       'slug': slug.value,
       'price': price.value,

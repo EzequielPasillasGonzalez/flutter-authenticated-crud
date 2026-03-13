@@ -26,4 +26,18 @@ class Product {
     required this.images,
     required this.user,
   });
+
+  factory Product.empty() => Product(
+    id: 'new',
+    title: '',
+    price: 0,
+    description: '',
+    slug: '',
+    stock: 0,
+    sizes: const [],
+    gender: '',
+    tags: const [],
+    images: const [],
+    user: null,
+  );
 }
