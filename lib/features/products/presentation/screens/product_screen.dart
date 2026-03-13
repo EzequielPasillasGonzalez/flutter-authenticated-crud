@@ -25,43 +25,43 @@ class _ProductScreenState extends State<ProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final productState = context.watch<ProductsBloc>().state;
-    final productBloc = context.read<ProductsBloc>();
-    final product = productState.selectedProduct;
-
-    // Comparar si el ID en memoria es el mismo que busca la ruta
-    final isMatchingId = product?.id == widget.productId;
-
-    // Si está cargando o si el producto en memoria es viejo
-    // y no coincide con la ruta, forzamos el loader
-    if (productState.isLoading || (!isMatchingId && product != null)) {
-      return const Scaffold(body: FullScreenLoader());
-    }
-
-    // Validacion si el producto es nulo
-    if (product == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Error')),
-        body: const Center(child: Text('Producto no encontrado')),
-      );
-    }
-
     return BlocListener<ProductsBloc, ProductsState>(
       listener: (context, state) {
         productStateListener(context, state);
         if (widget.productId == 'new' && state.selectedProduct?.id != 'new') {
-          context.canPop();
+          context.replace('/product/${state.selectedProduct?.id}');
         }
       },
-      child: BlocProvider(
-        create: (context) => FormProductBloc(
-          product: product,
-          onSubmitCallback: (productLike) {
-            FocusScope.of(context).unfocus();
-            productBloc.createUpdateProduct(productLike);
-          },
-        ),
-        child: _ProductFormScaffold(product: product),
+      child: Builder(
+        builder: (context) {
+          final productState = context.watch<ProductsBloc>().state;
+          final productBloc = context.read<ProductsBloc>();
+          final product = productState.selectedProduct;
+
+          final isMatchingId = product?.id == widget.productId;
+
+          if (productState.isLoading || (!isMatchingId && product != null)) {
+            return const Scaffold(body: FullScreenLoader());
+          }
+
+          if (product == null) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Error')),
+              body: const Center(child: Text('Producto no encontrado')),
+            );
+          }
+
+          return BlocProvider(
+            create: (context) => FormProductBloc(
+              product: product,
+              onSubmitCallback: (productLike) {
+                FocusScope.of(context).unfocus();
+                productBloc.createUpdateProduct(productLike);
+              },
+            ),
+            child: _ProductFormScaffold(product: product),
+          );
+        },
       ),
     );
   }
